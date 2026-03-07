@@ -2,3 +2,4 @@ backend/.env
 frontend/.env.local
 .env
 *.env
+.claude/
