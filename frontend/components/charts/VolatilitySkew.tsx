@@ -12,11 +12,17 @@ export default function VolatilitySkew({ className }: { className?: string }) {
 
   useEffect(() => {
     getVolatilitySkew()
-      .then(res => setData({
-        strikes: res.strikes,
-        expiries: res.expiries.map(exp => ({ date: exp, ivs: res.lines[exp] || [] }))
-      }))
-      .catch(() => setData({ strikes: [], expiries: [] }))
+      .then(res => {
+        console.log('vol skew:', res.expiries?.length, 'expiries,', res.strikes?.length, 'strikes')
+        setData({
+          strikes: res.strikes,
+          expiries: res.expiries.map((exp: string) => ({ date: exp, ivs: res.lines[exp] || [] }))
+        })
+      })
+      .catch(e => {
+        console.error('vol skew error:', e)
+        setData({ strikes: [], expiries: [] })
+      })
   }, [])
 
   if (!data) return <ChartCard title="Volatility Skew" className={className}><LoadingSpinner /></ChartCard>
@@ -28,7 +34,7 @@ export default function VolatilitySkew({ className }: { className?: string }) {
     type: 'scatter',
     mode: 'lines+markers',
     name: exp.date,
-    line: { color: colors[i % colors.length], width: 1.5, shape: 'spline' },
+    line: { color: colors[i % colors.length], width: 2, shape: 'spline' },
     marker: { color: colors[i % colors.length], size: 5 }
   }))
 
@@ -37,13 +43,14 @@ export default function VolatilitySkew({ className }: { className?: string }) {
       <Plot
         data={traces}
         layout={{
-          paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
-          font: { family: 'JetBrains Mono, monospace', color: '#475569', size: 10 },
-          margin: { l: 40, r: 10, t: 10, b: 30 },
+          paper_bgcolor: 'transparent',
+          plot_bgcolor: 'transparent',
+          font: { color: '#6b7280', size: 11 },
+          margin: { l: 50, r: 20, t: 30, b: 50 },
           autosize: true,
-          xaxis: { gridcolor: '#f1f5f9', zeroline: false },
-          yaxis: { gridcolor: '#f1f5f9', zeroline: false },
-          legend: { orientation: 'h', y: -0.2, font: { color: '#64748b' } }
+          xaxis: { gridcolor: '#f1f5f9', zeroline: false, color: '#9ca3af', title: 'Strike' },
+          yaxis: { gridcolor: '#f1f5f9', zeroline: false, color: '#9ca3af', title: 'IV Proxy (%)' },
+          legend: { orientation: 'h', y: -0.25, font: { color: '#6b7280', size: 10 } }
         }}
         config={{ responsive: true, displayModeBar: false }}
         style={{ width: '100%', height: '100%' }}

@@ -12,12 +12,18 @@ export default function OIDistribution({ className }: { className?: string }) {
 
   useEffect(() => {
     getOIDistribution()
-      .then(res => setData({
-        strikes: res.strikes,
-        ceOI: res.oi_ce,
-        peOI: res.oi_pe
-      }))
-      .catch(() => setData({ strikes: [], ceOI: [], peOI: [] }))
+      .then(res => {
+        console.log('oi distribution:', res.strikes?.length, 'strikes')
+        setData({
+          strikes: res.strikes,
+          ceOI: res.oi_ce,
+          peOI: res.oi_pe
+        })
+      })
+      .catch(e => {
+        console.error('oi distribution error:', e)
+        setData({ strikes: [], ceOI: [], peOI: [] })
+      })
   }, [])
 
   if (!data) return <ChartCard title="OI Distribution by Strike" className={className}><LoadingSpinner /></ChartCard>
@@ -31,14 +37,15 @@ export default function OIDistribution({ className }: { className?: string }) {
         ]}
         layout={{
           barmode: 'group',
-          bargap: 0.15,
-          paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
-          font: { family: 'JetBrains Mono, monospace', color: '#475569', size: 10 },
-          margin: { l: 40, r: 10, t: 10, b: 30 },
+          bargap: 0.2,
+          paper_bgcolor: 'transparent',
+          plot_bgcolor: 'transparent',
+          font: { color: '#6b7280', size: 11 },
+          margin: { l: 50, r: 20, t: 30, b: 50 },
           autosize: true,
-          xaxis: { gridcolor: '#f1f5f9', zeroline: false, type: 'category' },
-          yaxis: { gridcolor: '#f1f5f9', zeroline: false },
-          legend: { orientation: 'h', y: -0.2, font: { color: '#64748b' } }
+          xaxis: { gridcolor: '#f1f5f9', zeroline: false, color: '#9ca3af', title: 'Strike' },
+          yaxis: { gridcolor: '#f1f5f9', zeroline: false, color: '#9ca3af' },
+          legend: { orientation: 'h', y: -0.25, font: { color: '#6b7280', size: 10 } }
         }}
         config={{ responsive: true, displayModeBar: false }}
         style={{ width: '100%', height: '100%' }}

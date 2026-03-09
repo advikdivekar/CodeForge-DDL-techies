@@ -13,6 +13,7 @@ export default function VolumeSpikes({ className }: { className?: string }) {
   useEffect(() => {
     getVolumeSpikes()
       .then(res => {
+        console.log('volume spikes:', res.total_anomalies, 'anomalies out of', res.data?.length)
         const normal = res.data.filter(d => d.anomaly === 0)
         const anomaly = res.data.filter(d => d.anomaly === 1)
         setData({
@@ -23,7 +24,10 @@ export default function VolumeSpikes({ className }: { className?: string }) {
           count: res.total_anomalies
         })
       })
-      .catch(() => setData({ normalX: [], normalY: [], anomalyX: [], anomalyY: [], count: 0 }))
+      .catch(e => {
+        console.error('volume spikes error:', e)
+        setData({ normalX: [], normalY: [], anomalyX: [], anomalyY: [], count: 0 })
+      })
   }, [])
 
   if (!data) return <ChartCard title="Volume Anomaly Detection" className={className}><LoadingSpinner /></ChartCard>
@@ -39,24 +43,25 @@ export default function VolumeSpikes({ className }: { className?: string }) {
           {
             x: data.normalX, y: data.normalY,
             type: 'scatter', mode: 'markers',
-            marker: { color: '#94a3b8', size: 5, opacity: 0.6 },
+            marker: { color: '#94a3b8', size: 4, opacity: 0.5 },
             name: 'Normal'
           },
           {
             x: data.anomalyX, y: data.anomalyY,
             type: 'scatter', mode: 'markers',
-            marker: { color: '#e11d48', symbol: 'diamond', size: 10, line: { color: '#ffffff', width: 1.5 } },
+            marker: { color: '#e11d48', symbol: 'diamond', size: 8, line: { color: '#ffffff', width: 1 } },
             name: 'Anomaly'
           }
         ]}
         layout={{
-          paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
-          font: { family: 'JetBrains Mono, monospace', color: '#475569', size: 10 },
-          margin: { l: 40, r: 10, t: 10, b: 30 },
+          paper_bgcolor: 'transparent',
+          plot_bgcolor: 'transparent',
+          font: { color: '#6b7280', size: 11 },
+          margin: { l: 50, r: 20, t: 30, b: 50 },
           autosize: true,
           showlegend: false,
-          xaxis: { gridcolor: '#f1f5f9', zeroline: false },
-          yaxis: { gridcolor: '#f1f5f9', zeroline: false }
+          xaxis: { gridcolor: '#f1f5f9', zeroline: false, color: '#9ca3af', title: 'Strike' },
+          yaxis: { gridcolor: '#f1f5f9', zeroline: false, color: '#9ca3af', title: 'Volume' }
         }}
         config={{ responsive: true, displayModeBar: false }}
         style={{ width: '100%', height: '100%' }}

@@ -12,8 +12,15 @@ export default function OIHeatmap({ className }: { className?: string }) {
 
   useEffect(() => {
     getOIHeatmap()
-      .then(res => setData({ z: res.values, x: res.strikes, y: res.timestamps }))
-      .catch(() => setData({ z: [[0]], x: [], y: [] }))
+      .then(res => {
+        console.log('heatmap data:', res.strikes?.length, 'strikes,', res.timestamps?.length, 'timestamps')
+        // z is strikes×timestamps (101×77) — swap so x=timestamps, y=strikes
+        setData({ z: res.values, x: res.timestamps, y: res.strikes })
+      })
+      .catch(e => {
+        console.error('heatmap error:', e)
+        setData({ z: [[0]], x: [], y: [] })
+      })
   }, [])
 
   if (!data) return <ChartCard title="Open Interest Heatmap" className={className}><LoadingSpinner /></ChartCard>
@@ -26,21 +33,18 @@ export default function OIHeatmap({ className }: { className?: string }) {
           x: data.x,
           y: data.y,
           type: 'heatmap',
-          colorscale: [
-            [0, '#f8fafc'],
-            [0.5, '#a5b4fc'],
-            [1, '#4338ca']
-          ],
-          showscale: false
+          colorscale: 'Plasma',
+          showscale: true,
+          colorbar: { thickness: 12, len: 0.8, tickfont: { color: '#9ca3af', size: 9 } }
         }]}
         layout={{
           paper_bgcolor: 'transparent',
           plot_bgcolor: 'transparent',
-          font: { family: 'JetBrains Mono, monospace', color: '#475569', size: 10 },
-          margin: { l: 40, r: 10, t: 10, b: 30 },
+          font: { color: '#6b7280', size: 11 },
+          margin: { l: 60, r: 60, t: 10, b: 50 },
           autosize: true,
-          xaxis: { showgrid: false, zeroline: false },
-          yaxis: { showgrid: false, zeroline: false }
+          xaxis: { showgrid: false, zeroline: false, color: '#9ca3af', title: 'Time' },
+          yaxis: { showgrid: false, zeroline: false, color: '#9ca3af', title: 'Strike' }
         }}
         config={{ responsive: true, displayModeBar: false }}
         style={{ width: '100%', height: '100%' }}

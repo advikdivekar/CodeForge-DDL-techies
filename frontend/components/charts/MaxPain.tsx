@@ -12,12 +12,18 @@ export default function MaxPain({ className }: { className?: string }) {
 
   useEffect(() => {
     getMaxPain()
-      .then(res => setData({
-        strikes: res.strikes,
-        painValue: res.pain_values,
-        maxPainStrike: res.max_pain_strike
-      }))
-      .catch(() => setData({ strikes: [], painValue: [], maxPainStrike: 0 }))
+      .then(res => {
+        console.log('max pain:', res.max_pain_strike, 'strikes:', res.strikes?.length)
+        setData({
+          strikes: res.strikes,
+          painValue: res.pain_values,
+          maxPainStrike: res.max_pain_strike
+        })
+      })
+      .catch(e => {
+        console.error('max pain error:', e)
+        setData({ strikes: [], painValue: [], maxPainStrike: 0 })
+      })
   }, [])
 
   if (!data) return <ChartCard title="Max Pain Analysis" className={className}><LoadingSpinner /></ChartCard>
@@ -29,21 +35,21 @@ export default function MaxPain({ className }: { className?: string }) {
           x: data.strikes,
           y: data.painValue,
           type: 'bar',
-          marker: { color: '#3b82f6', line: { color: 'transparent', width: 0 } },
-          width: 0.6
+          marker: { color: data.strikes?.map((s: number) => s === data.maxPainStrike ? '#e11d48' : '#6366f1'), line: { color: 'transparent', width: 0 } }
         }]}
         layout={{
-          paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
-          font: { family: 'JetBrains Mono, monospace', color: '#475569', size: 10 },
-          margin: { l: 40, r: 10, t: 10, b: 30 },
+          paper_bgcolor: 'transparent',
+          plot_bgcolor: 'transparent',
+          font: { color: '#6b7280', size: 11 },
+          margin: { l: 50, r: 20, t: 30, b: 50 },
           autosize: true,
-          xaxis: { gridcolor: '#f1f5f9', zeroline: false, type: 'category' },
-          yaxis: { gridcolor: '#f1f5f9', zeroline: false },
+          xaxis: { gridcolor: '#f1f5f9', zeroline: false, color: '#9ca3af', title: 'Strike' },
+          yaxis: { gridcolor: '#f1f5f9', zeroline: false, color: '#9ca3af', title: 'Pain Value' },
           shapes: [
-            { type: 'line', x0: data.maxPainStrike, x1: data.maxPainStrike, y0: 0, y1: 1, yref: 'paper', line: { color: '#e11d48', width: 1.5, dash: 'dot' } }
+            { type: 'line', x0: data.maxPainStrike, x1: data.maxPainStrike, y0: 0, y1: 1, yref: 'paper', line: { color: '#e11d48', width: 2, dash: 'dot' } }
           ],
           annotations: [
-            { x: data.maxPainStrike, y: 1, yref: 'paper', text: `MAX PAIN ₹${data.maxPainStrike}`, showarrow: false, font: { color: '#e11d48', size: 9 }, yanchor: 'bottom' }
+            { x: data.maxPainStrike, y: 1, yref: 'paper', text: `MAX PAIN ₹${data.maxPainStrike?.toLocaleString('en-IN')}`, showarrow: false, font: { color: '#e11d48', size: 10 }, yanchor: 'bottom' }
           ]
         }}
         config={{ responsive: true, displayModeBar: false }}
